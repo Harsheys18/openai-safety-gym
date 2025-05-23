@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools >= 60.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "safety-gym"
+description = "A toolkit for developing and comparing safe reinforcement learning algorithms."
+readme = "README.md"
+requires-python = ">=3.6"
+authors = [{ name = "OpenAI Safety Gym Contributors" }]
+keywords = ["Safe Reinforcement Learning", "Gym", "MuJoCo"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "gymnasium >= 0.28.1",
+    "mujoco >= 2.3.0",  # Official modern mujoco package
+    "numpy >= 1.17.4",
+    "torch >= 1.12.0",
+    "matplotlib >= 3.0.0",
+    "tqdm >= 4.0.0",
+    "joblib ~= 0.14.0",
+    "xmltodict ~= 0.12.0"
+]
+
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/openai/safety-gym"
+Repository = "https://github.com/openai/safety-gym"
+"Bug Tracker" = "https://github.com/openai/safety-gym/issues"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["safety_gym", "safety_gym.*"]
