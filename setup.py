@@ -9,13 +9,12 @@ assert sys.version_info.major == 3 and sys.version_info.minor >= 6, (
 
 setup(
     name='my_safety_gym_project',
-    version='0.1.0',
     description='Safe RL project using OpenAI Safety Gym, PyTorch, and CleanRL.',
     packages=find_packages(),
     install_requires=[
-        'gym==0.15.3',
-        'mujoco-py<2.2,>=2.1',
-        'numpy==1.23.0',
+        'gym==0.23.1',
+        'mujoco_py==2.0.2.7',
+        'numpy~=1.17.4',
         'xmltodict~=0.12.0',
         'joblib~=0.14.0',
         'torch>=1.12.0',
