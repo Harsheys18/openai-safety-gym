@@ -3,12 +3,11 @@ requires = ["setuptools >= 60.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "safety-gym"
-description = "A toolkit for developing and comparing safe reinforcement learning algorithms."
+name = "my-safety-gym-project"
+description = "Safe RL project using OpenAI Safety Gym, PyTorch, CleanRL, and Stable Baselines3."
 readme = "README.md"
 requires-python = ">=3.6"
-authors = [{ name = "OpenAI Safety Gym Contributors" }]
-keywords = ["Safe Reinforcement Learning", "Gym", "MuJoCo"]
+keywords = ["Safe Reinforcement Learning", "Gym", "MuJoCo", "PyTorch", "Stable Baselines", "CleanRL"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "License :: OSI Approved :: MIT License",
@@ -16,19 +15,24 @@ classifiers = [
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
     "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence"
 ]
 
 dependencies = [
-    "gymnasium >= 0.28.1",
-    "mujoco >= 2.3.0",  # Official modern mujoco package
-    "numpy >= 1.17.4",
-    "torch >= 1.12.0",
-    "matplotlib >= 3.0.0",
-    "tqdm >= 4.0.0",
-    "joblib ~= 0.14.0",
-    "xmltodict ~= 0.12.0"
+    "gym==0.15.3",
+    "safety-gym @ git+https://github.com/openai/safety-gym.git",
+    "mujoco-py<2.2,>=2.1",
+    "numpy~=1.23.0",
+    "xmltodict~=0.12.0",
+    "joblib~=0.14.0",
+    "torch>=1.12.0",
+    "stable-baselines3>=1.6.2",
+    "opencv-python",
+    "tyro>=0.5.10",
+    "tensorboard",
+    "cleanrl @ git+https://github.com/vwxyzjn/cleanrl.git"
 ]
 
 dynamic = ["version"]

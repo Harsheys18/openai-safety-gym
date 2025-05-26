@@ -4,9 +4,6 @@ import random
 import time
 from dataclasses import dataclass
 
-import gymnasium as gym
-import safety_gymnasium
-from safety_gymnasium.vector import SafetySyncVectorEnv
 import numpy as np
 import torch
 import torch.nn as nn
@@ -14,6 +11,15 @@ import torch.optim as optim
 import tyro
 from torch.distributions.normal import Normal
 from torch.utils.tensorboard import SummaryWriter
+
+import gymnasium as gym
+import safety_gym
+import numpy as np
+from gym.wrappers import ClipAction, RecordEpisodeStatistics
+from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv
+from stable_baselines3.common.monitor import Monitor
+from gym.wrappers.record_video import RecordVideo
+from stable_baselines3.common.vec_env import SubprocVecEnv
 
 
 @dataclass
@@ -91,22 +97,29 @@ class Args:
 
 def make_env(env_id, idx, capture_video, run_name, gamma):
     def thunk():
+        env = gym.make(env_id)
+        
+        # Optional video capture
         if capture_video and idx == 0:
-            env = safety_gymnasium.make(env_id, render_mode="rgb_array", camera_id=1, width=1008, height=1008)
-            env = safety_gymnasium.wrappers.SafeRecordVideo(env, f"videos/{run_name}")
-        else:
-            env = safety_gymnasium.make(env_id)
-        env = safety_gymnasium.wrappers.SafeFlattenObservation(env)  # deal with dm_control's Dict observation space
-        env = safety_gymnasium.wrappers.SafeRecordEpisodeStatistics(env)
-        env = gym.wrappers.ClipAction(env) # DW: NB gym version of wrapper works
-        env = safety_gymnasium.wrappers.SafeNormalizeObservation(env)
-        env = safety_gymnasium.wrappers.SafeTransformObservation(env, lambda obs: np.clip(obs, -10, 10))
-        env = safety_gymnasium.wrappers.SafeNormalizeReward(env, gamma=gamma)
-        env = safety_gymnasium.wrappers.SafeTransformReward(env, lambda reward: np.clip(reward, -10, 10))
-        # DW: todo: normalise cost
+            env = RecordVideo(env, video_folder=f"videos/{run_name}", episode_trigger=lambda e: True)
+
+        env = Monitor(env)  # Record episode statistics
+
+        # Flatten observation if it's a Dict (OpenAI Safety Gym usually returns flat obs though)
+        if isinstance(env.observation_space, gym.spaces.Dict):
+            from gym.wrappers import FlattenObservation
+            env = FlattenObservation(env)
+
+        env = ClipAction(env)
+
+        # VecNormalize for normalization of obs and rewards
+        env = DummyVecEnv([lambda: env])  # required by VecNormalize
+        env = VecNormalize(env, norm_obs=True, norm_reward=True, gamma=gamma, clip_obs=10.0)
+
         return env
 
     return thunk
+
 
 
 def layer_init(layer, std=np.sqrt(2), bias_const=0.0):
@@ -180,7 +193,10 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
 
     # env setup
-    envs = SafetySyncVectorEnv([make_env(args.env_id, i, args.capture_video, run_name, args.gamma) for i in range(args.num_envs)])
+    envs = SubprocVecEnv([
+        make_env(args.env_id, i, args.capture_video, run_name, args.gamma)
+        for i in range(args.num_envs)
+    ])
     assert isinstance(envs.single_action_space, gym.spaces.Box), "only continuous action space is supported"
 
     agent = Agent(envs).to(device)
