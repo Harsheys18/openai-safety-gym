@@ -12,7 +12,8 @@ import tyro
 from torch.distributions.normal import Normal
 from torch.utils.tensorboard import SummaryWriter
 
-import gymnasium as gym
+import gymnasium 
+import gym
 import safety_gym 
 from gymnasium.wrappers import ClipAction, RecordEpisodeStatistics, FlattenObservation
 from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv
