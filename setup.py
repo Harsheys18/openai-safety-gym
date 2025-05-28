@@ -12,7 +12,7 @@ assert sys.version_info.major == 3 and sys.version_info.minor >= 6, \
 
 # Core dependencies
 install_requires = [
-    "numpy>=1.20.0",
+    "numpy==1.23.5",
     "joblib~=0.14.0",
     "xmltodict~=0.12.0",
     "gym~=0.23.1", 
