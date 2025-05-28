@@ -13,7 +13,7 @@ from torch.distributions.normal import Normal
 from torch.utils.tensorboard import SummaryWriter
 
 import gym
-import safety_gym  # Using original OpenAI safety_gym
+import safety_gym 
 from gym.wrappers import ClipAction, RecordEpisodeStatistics, FlattenObservation
 from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv
 from stable_baselines3.common.monitor import Monitor
@@ -55,7 +55,7 @@ class Args:
     """total timesteps of the experiments"""
     learning_rate: float = 3e-4
     """the learning rate of the optimizer"""
-    num_envs: int = 1  # Reduced to 1 since Safety Gym doesn't parallelize well
+    num_envs: int = 4
     """the number of parallel game environments"""
     num_steps: int = 2048
     """the number of steps to run in each environment per policy rollout"""
@@ -98,13 +98,10 @@ class Args:
 
 def make_env(env_id, idx, capture_video, run_name, gamma):
     def thunk():
-        # Create the Safety Gym environment
-        env = gym.make(env_id)
-        
-        # Safety Gym specific: Flatten the observation space
+        # Create the Safety Gym specific environment: Flatten the observation space
+        env = gym.make(env_id)       
         env = FlattenObservation(env)
         
-        # Optional video capture
         if capture_video and idx == 0:
             env = RecordVideo(env, f"videos/{run_name}")
         
@@ -117,6 +114,7 @@ def make_env(env_id, idx, capture_video, run_name, gamma):
         env = VecNormalize(env, norm_obs=True, norm_reward=True, gamma=gamma)
         
         return env
+    
     return thunk
 
 
@@ -168,7 +166,6 @@ if __name__ == "__main__":
     args.num_iterations = args.total_timesteps // args.batch_size
     run_name = f"{args.env_id}__{args.exp_name}__{args.seed}__{int(time.time())}"
     
-    # Fixed WandB initialization with better error handling
     if args.track:
         try:
             # Set environment variables for WandB in WSL/problematic environments

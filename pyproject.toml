@@ -1,43 +1,43 @@
 [build-system]
-requires = [
-    "setuptools >= 60.0.0",
-    "wheel",
-    "Cython",
-    "numpy",
-    "imageio",
-    "glfw",
-    "patchelf","mujoco"
-]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "my-safety-gym-project"
-description = "Safe RL project using OpenAI Safety Gym, PyTorch, CleanRL, and Stable Baselines3."
+name = "ppo-safety-gym"
+description = "PPO implementation for Safety Gym environments"
 readme = "README.md"
-requires-python = ">=3.6"
-keywords = ["Safe Reinforcement Learning", "Gym", "MuJoCo", "PyTorch", "Stable Baselines", "CleanRL"]
+requires-python = ">=3.8"
+keywords = ["reinforcement-learning", "ppo", "safety-gym", "pytorch"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
-    "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence"
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 
 dependencies = [
-    "gym==0.23.1",
-    "numpy>=1.20",
+    "numpy~=1.17.4",
+    "joblib~=0.14.0",
     "mujoco_py==2.0.2.7",
-    "torch>=1.12.0",
-    "stable-baselines3>=1.6.2",
-    "opencv-python",
-    "joblib>=1.0",
-    "tyro>=0.5.10",
+    "xmltodict~=0.12.0" 
+    "gym~=0.15.3",
+    "stable-baselines3>=1.6.0",
+    "huggingface-hub>=0.8.0",
+    "torch",
+    "pygame",
     "tensorboard",
-    "cleanrl @ git+https://github.com/vwxyzjn/cleanrl.git"
+    "tyro",
+    "wandb",
+    "moviepy",
+    "opencv-python",
+    "matplotlib",
+    "seaborn",
 ]
 
 dynamic = ["version"]
@@ -45,10 +45,156 @@ dynamic = ["version"]
 [project.urls]
 Homepage = "https://github.com/openai/safety-gym"
 Repository = "https://github.com/openai/safety-gym"
-"Bug Tracker" = "https://github.com/openai/safety-gym/issues"
+Documentation = "https://openai.com/index/safety-gym/"
+
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=3.0.0",
+    "isort >= 5.11.0",
+    "black >= 23.1.0",
+    "pylint[spelling] >= 2.15.0",
+    "mypy >= 0.990",
+    "flake8",
+    "flake8-bugbear",
+    "flake8-comprehensions",
+    "flake8-docstrings",
+    "flake8-pyi",
+    "flake8-simplify",
+    "doc8",
+    "pydocstyle",
+    "pyenchant",
+    "pre-commit",
+    "myst-parser",
+]
+
+test = ["pytest", "pytest-cov", "pytest-xdist"]
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["safety_gym", "safety_gym.*"]
+include = ["openai-safety-gym", "openai-safety-gym.*"]
+
+[project.scripts]
+ppo-safety = "openai-safety-gym.main:main"
+
+# Linter tools #################################################################
+
+[tool.black]
+safe = true
+line-length = 88
+skip-string-normalization = true
+# Sync with requires-python
+target-version = ["py38", "py39", "py310", "py311"]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["openai-safety-gym"]
+
+[tool.mypy]
+python_version = 3.8
+pretty = true
+show_error_codes = true
+show_error_context = true
+show_traceback = true
+allow_redefinition = true
+check_untyped_defs = true
+disallow_incomplete_defs = false
+disallow_untyped_defs = false
+ignore_missing_imports = true
+no_implicit_optional = true
+strict_equality = true
+strict_optional = true
+warn_no_return = true
+warn_redundant_casts = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+
+[tool.pydocstyle]
+convention = "google"
+
+[tool.doc8]
+max-line-length = 500
+
+[tool.codespell]
+ignore-words = "docs/spelling_wordlist.txt"
+
+[tool.ruff]
+# Sync with requires-python
+target-version = "py38"
+line-length = 100
+src = ["omnisafe", "tests", "examples"]
+select = [
+    "E", "W",  # pycodestyle
+    "F",       # pyflakes
+    "UP",      # pyupgrade
+    "ANN",     # flake8-annotations
+    "S",       # flake8-bandit
+    "BLE",     # flake8-blind-except
+    "B",       # flake8-bugbear
+    "COM",     # flake8-commas
+    "C4",      # flake8-comprehensions
+    "EXE",     # flake8-executable
+    "ISC",     # flake8-implicit-str-concat
+    "PIE",     # flake8-pie
+    "PYI",     # flake8-pyi
+    "Q",       # flake8-quotes
+    "RSE",     # flake8-raise
+    "RET",     # flake8-return
+    "SIM",     # flake8-simplify
+    "TID",     # flake8-tidy-imports
+    "RUF",     # ruff
+]
+ignore = [
+    # E501: line too long
+    # W505: doc line too long
+    # too long docstring due to long example blocks
+    "E501",
+    "W505",
+    # TODO: Remove this five ignores
+    # ANN001: missing type annotation for function argument
+    # ANN002: missing type annotation for `*args`
+    # ANN003: missing type annotation for `**kwargs`
+    # ANN201: missing return type annotation for public function
+    # ANN202: missing return type annotation for private function
+    "ANN001","ANN002","ANN003","ANN201","ANN202",
+    # ANN101: missing type annotation for `self` in method
+    # ANN102: missing type annotation for `cls` in classmethod
+    "ANN101",
+    "ANN102",
+    # ANN401: dynamically typed expressions (typing.Any) are disallowed
+    "ANN401",
+    # S101: use of `assert` detected
+    # internal use and may never raise at runtime
+    "S101",
+    # PLR0402: use from {module} import {name} in lieu of alias
+    # use alias for import convention (e.g., `import torch.nn as nn`)
+    "PLR0402",
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = [
+    "F401",  # unused-import
+]
+"tests/**/*.py" = [
+    "ANN",   # flake8-annotations
+    "S",     # flake8-bandit
+    "BLE",   # flake8-blind-except
+]
+
+[tool.ruff.flake8-annotations]
+allow-star-arg-any = true
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+multiline-quotes = "double"
+inline-quotes = "single"
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
