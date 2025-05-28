@@ -17,7 +17,8 @@ import safety_gym
 from gym.wrappers import ClipAction, RecordEpisodeStatistics, FlattenObservation
 from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv
 from stable_baselines3.common.monitor import Monitor
-from gym.wrappers.record_video import RecordVideo
+from gym.utils.save_video import save_video
+
 
 from cleanrl_utils.evals.ppo_eval import evaluate
 from cleanrl_utils.huggingface import push_to_hub
@@ -95,26 +96,51 @@ class Args:
     num_iterations: int = 0
     """the number of iterations (computed in runtime)"""
 
+class VideoCaptureWrapper(gym.Wrapper):
+    def __init__(self, env, run_name):
+        super().__init__(env)
+        self.frames = []
+        self.episode_index = 0
+        self.video_folder = os.path.join("videos", run_name)
+        os.makedirs(self.video_folder, exist_ok=True)
+
+    def reset(self, **kwargs):
+        obs, info = self.env.reset(**kwargs)
+        self.frames = [self.env.render()]
+        return obs, info
+
+    def step(self, action):
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        self.frames.append(self.env.render())
+
+        if terminated or truncated:
+            save_video(
+                self.frames,
+                self.video_folder,
+                fps=self.env.metadata.get("render_fps", 30),
+                episode_index=self.episode_index,
+                name_prefix=f"video"
+            )
+            self.episode_index += 1
+        return obs, reward, terminated, truncated, info
+
 
 def make_env(env_id, idx, capture_video, run_name, gamma):
     def thunk():
-        # Create the Safety Gym specific environment: Flatten the observation space
-        env = gym.make(env_id)       
-        env = FlattenObservation(env)
-        
+        env = gym.make(
+            env_id, render_mode="rgb_array", camera_id=1, width=1008, height=1008
+        )
+        env = gym.wrappers.FlattenObservation(env) 
+        env = gym.wrappers.RecordEpisodeStatistics(env)
+        env = gym.wrappers.ClipAction(env)
+        env = gym.wrappers.NormalizeObservation(env)
+        env = gym.wrappers.TransformObservation(env, lambda obs: np.clip(obs, -10, 10))
+        env = gym.wrappers.NormalizeReward(env, gamma=gamma)
+        env = gym.wrappers.TransformReward(env, lambda reward: np.clip(reward, -10, 10))
+
         if capture_video and idx == 0:
-            env = RecordVideo(env, f"videos/{run_name}")
-        
-        # Add monitoring for episode statistics
-        env = Monitor(env)
-        env = ClipAction(env)
-        
-        # Wrap in DummyVecEnv for compatibility with VecNormalize
-        env = DummyVecEnv([lambda: env])
-        env = VecNormalize(env, norm_obs=True, norm_reward=True, gamma=gamma)
-        
+            env = VideoCaptureWrapper(env, run_name)
         return env
-    
     return thunk
 
 
