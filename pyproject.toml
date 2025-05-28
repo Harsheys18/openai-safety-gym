@@ -78,7 +78,7 @@ include-package-data = true
 include = ["openai-safety-gym", "openai-safety-gym.*"]
 
 [project.scripts]
-ppo-safety = "openai-safety-gym.main:main"
+ppo-safety = "openai_safety_gym.main:main"
 
 # Linter tools #################################################################
 
