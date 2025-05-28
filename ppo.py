@@ -14,10 +14,10 @@ from torch.utils.tensorboard import SummaryWriter
 
 import gymnasium as gym
 import safety_gym 
-from gym.wrappers import ClipAction, RecordEpisodeStatistics, FlattenObservation
+from gymnasium.wrappers import ClipAction, RecordEpisodeStatistics, FlattenObservation
 from stable_baselines3.common.vec_env import VecNormalize, DummyVecEnv
 from stable_baselines3.common.monitor import Monitor
-from gym.utils.save_video import save_video
+from gymnasium.utils.save_video import save_video
 
 
 from cleanrl_utils.evals.ppo_eval import evaluate
