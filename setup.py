@@ -17,6 +17,7 @@ install_requires = [
     "mujoco_py==2.0.2.7",
     "xmltodict~=0.12.0", 
     "gym~=0.15.3",
+    "gymnasium",
     "stable-baselines3",
     "huggingface-hub>=0.8.0",
     "torch",
