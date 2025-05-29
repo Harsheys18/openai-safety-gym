@@ -1,3 +1,14 @@
+## For running the code (with making environment and compiling ppo.py)
+
+Download the given bash file [setup_ppo_safety_gym.sh](https://drive.google.com/file/d/1ruyJgCz4bWJioaqMGpxdD4IOpv_U6Fho/view?usp=sharing) 
+Afterwards simply run the bash file followed by the following commands:
+```
+bash setup_ppo_safety_gym.sh
+cd openai_safety_gym
+source gym-env/bin/activate
+python ppo.py --env-id Safexp-PointGoal1-v0 --track --capture-video
+```
+
 **Status:** Archive (code is provided as-is, no updates expected)
 
 # Safety Gym
