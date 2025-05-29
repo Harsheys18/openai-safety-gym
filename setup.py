@@ -29,7 +29,7 @@ install_requires = [
     "matplotlib",
     "seaborn",
     "cleanrl @ git+https://github.com/vwxyzjn/cleanrl.git",
-    "mujoco_py @ git+https://github.com/openai/mujoco-py",
+    "mujoco-py<2.2,>=2.1",
 ]
 
 setup(
